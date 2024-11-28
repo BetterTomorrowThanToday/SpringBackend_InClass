@@ -34,6 +34,13 @@ jobs:
         run: |
           sed -i "s/EC2_IP_ADDRESS/${{ secrets.EC2_IP_ADDRESS }}/g" src/main/resources/application.yml
 
+      # GitHub Secrets에서 DB_USERNAME 및 DB_PASSWORD를 가져와 application.yml 파일에 업데이트
+      - name: Update DB credentials in application.yml
+        run: |
+          sed -i "s/DB_USERNAME/${{ secrets.DB_USERNAME }}/g" src/main/resources/application.yml
+          sed -i "s/DB_PASSWORD/${{ secrets.DB_PASSWORD }}/g" src/main/resources/application.yml
+
+
       # DockerHub 로그인 (GitHub Secrets 사용)
       - name: Login to DockerHub
         uses: docker/login-action@v1
