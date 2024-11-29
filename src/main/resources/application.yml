@@ -15,4 +15,8 @@ spring:
             non_contextual_creation: true
   jackson:
     serialization:
-      indent_output: true
+      indent_output:
+
+server:
+  address: 0.0.0.0
+  port: 8080

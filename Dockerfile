@@ -1,5 +1,7 @@
 FROM eclipse-temurin:17-jdk AS builder
 
+EXPOSE 8080
+
 WORKDIR /app
 
 COPY . .
