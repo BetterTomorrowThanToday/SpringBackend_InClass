@@ -9,6 +9,10 @@ permissions:
 
 env:
   ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+  ECS_SERVICE: ecs-springapp-service
+  ECS_CLUSTER: ecs-springapp-cluster
+  ECS_TASK_DEFINITION: ./task-definition.json
+  CONTAINER_NAME: springAppContainer
 
 jobs:
   build-docker-image:
@@ -59,5 +63,12 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG .
+
+        # `latest` 태그와 고유한 버전 태그 모두 ECR에 푸시
+          docker tag $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:latest
+          
+        # 푸시
           docker push $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
+          docker push $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:latest
+
           echo "image=$ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG" >> $GITHUB_OUTPUT
