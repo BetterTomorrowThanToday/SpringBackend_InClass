@@ -40,11 +40,13 @@ jobs:
           sed -i "s/DB_USERNAME/${{ secrets.DB_USERNAME }}/g" src/main/resources/application.yml
           sed -i "s/DB_PASSWORD/${{ secrets.DB_PASSWORD }}/g" src/main/resources/application.yml
 
+      #gradle build
       - name: Build with Gradle
         uses: gradle/gradle-build-action@v2.6.0
         with:
           arguments: build -x test
 
+      #
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -52,10 +54,12 @@ jobs:
           role-session-name: ecrPushSession
           aws-region: ap-northeast-2
 
+      # 4. login
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2.0.1
 
+      #5. 편의를 위한 latest 배포 + 버전 배포
       - name: Build and Push Image to AWS ECR
         id: build-image
         env:
@@ -67,3 +71,21 @@ jobs:
           docker push $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
           docker push $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:latest
           echo "image=$ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      # 6.task를 수정하는 작업
+      - name: Fill in the new image ID in the Amazon ECS Task Definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@c804dfbdd57f713b6c079302a4c01db7017a36fc
+        with:
+          task-definition: ${{ env.ECS_TASK_DEFINITION }}
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.build-image.outputs.image }}
+
+      # 7. ECS에 태스크를 배포
+      - name: Deploy Amazon ECS Task Definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@df9643053eda01f169e64a0e60233aacca83799a
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
