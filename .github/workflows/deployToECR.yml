@@ -9,10 +9,10 @@ permissions:
 
 env:
   ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
-  ECS_SERVICE: ecs-springapp-service
-  ECS_CLUSTER: ecs-springapp-cluster
+  ECS_SERVICE: spring-service
+  ECS_CLUSTER: ECS-SpringApp-Cluster-Fargate
   ECS_TASK_DEFINITION: ./task-definition.json
-  CONTAINER_NAME: springAppContainer
+  CONTAINER_NAME: spring-app
 
 jobs:
   build-docker-image:
