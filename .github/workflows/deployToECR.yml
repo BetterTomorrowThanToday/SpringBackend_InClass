@@ -44,8 +44,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::590183755494:role/$ECR_REPOSITORY
-          role-session-name: ecrSessionName
+          role-to-assume: arn:aws:iam::590183755494:role/apiserver-role
+          role-session-name: ecrPushSession
           aws-region: ap-northeast-2
 
       - name: Login to Amazon ECR
